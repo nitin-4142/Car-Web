@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Car Showcase - Login Required</title>
+    <style>
+      /*  CSS snippet */
+      body {
+        font-family: "Times", sans-serif;
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(135deg, #1e6072, #612a98) url('car.jpg');
+        color: #333333;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      header {
+        background-color: rgba(4, 2, 0, 0.7);
+        color: #fff;
+        padding: 1.8rem;
+        text-align: center;
+        position: relative;
+      }
+      header h1 {
+        margin: 0;
+      }
+      .auth-buttons {
+        position: relative;
+        top: 19rem;
+        right: -12rem;
+        display: flex;
+        gap: 0.9rem;
+      }
+      .auth-buttons button {
+        background-color: #617bff;
+        border: none;
+        padding: 1.6rem 1rem;
+        border-radius: 20px;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        font-size: 0.9rem;
+      }
+      .auth-buttons button:hover {
+        background-color: #f20e0edc;
+      }
+      .filter,
+      .container {
+        max-width: 900px;
+        margin: 1rem auto;
+        width: 90%;
+        background-color: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      }
+      .filter {
+        padding: 1rem;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        border-radius: 0 0 15px 15px;
+      }
+      .filter select,
+      .filter input {
+        padding: 0.5rem;
+        font-size: 1rem;
+        margin: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        width: 180px;
+        max-width: 100%;
+      }
+      .container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1rem;
+        padding: 2rem;
+        border-radius: 15px;
+      }
+      .card {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: transform 0.2s;
+        min-height: 420px;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+      }
+      .card img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+      }
+      .card-body {
+        padding: 1rem;
+      }
+      .card-body h3 {
+        margin: 0 0 0.5rem;
+        font-size: 1.2rem;
+        color: #222;
+      }
+      .card-body p {
+        margin: 0.25rem 0;
+        color: #555;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.6);
+        align-items: center;
+        justify-content: center;
+      }
+      .modal-content {
+        background-color: #fff;
+        border-radius: 12px;
+        padding: 2rem;
+        max-width: 400px;
+        width: 90%;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        position: relative;
+        animation: fadeInScale 0.3s ease forwards;
+      }
+      @keyframes fadeInScale {
+        0% {
+          opacity: 0;
+          transform: scale(0.7);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      .modal-content h2 {
+        margin-top: 0;
+        color: #183e84;
+        text-align: center;
+      }
+      .modal-content label {
+        display: block;
+        margin: 1rem 0 0.5rem;
+        font-weight: bold;
+        color: #333;
+      }
+      .modal-content input[type="text"],
+      .modal-content input[type="password"],
+      .modal-content input[type="email"] {
+        width: 100%;
+        padding: 0.6rem;
+        font-size: 1rem;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+      }
+      .modal-content button.submit-btn {
+        background-color: #1e3c72;
+        color: white;
+        border: none;
+        padding: 0.7rem;
+        width: 100%;
+        font-size: 1.1rem;
+        margin-top: 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        font-weight: bold;
+      }
+      .modal-content button.submit-btn:hover {
+        background-color: #164a99;
+      }
+      .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #999;
+        border: none;
+        background: none;
+        cursor: pointer;
+        transition: color 0.2s ease;
+      }
+      .close-btn:hover {
+        color: #333;
+      }
+      #carSection {
+        display: none;
+        flex-grow: 1;
+        flex-direction: column;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Car Showcase</h1>
+      <div class="auth-buttons" id="authButtons">
+        <button onclick="openModal('login')">Login</button>
+        <button onclick="openModal('signup')">Sign Up</button>
+      </div>
+    </header>
+
+    <section id="carSection">
+      <div class="filter">
+        <label for="categoryFilter"><strong>Filter by Category:</strong></label>
+        <select id="categoryFilter" onchange="filterCars()">
+          <option value="All">All</option>
+          <option value="Popular">Popular</option>
+          <option value="SUV">SUV</option>
+          <option value="Sedan">Sedan</option>
+          <option value="MPV">MPV</option>
+          <option value="EV">EV</option>
+          <option value="Luxury">Luxury</option>
+        </select>
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search by car name..."
+          oninput="filterCars()"
+          aria-label="Search by car name"
+        />
+      </div>
+      <div class="container" id="carContainer"></div>
+    </section>
+
+    <!-- Login Modal -->
+    <div
+      id="loginModal"
+      class="modal"
+      aria-hidden="true"
+      role="dialog"
+      aria-labelledby="loginTitle"
+    >
+      <div class="modal-content">
+        <button
+          class="close-btn"
+          aria-label="Close login form"
+          onclick="closeModal('login')"
+        >
+          &times;
+        </button>
+        <h2 id="loginTitle">Login</h2>
+        <form id="loginForm">
+          <label for="loginEmail">Email:</label>
+          <input
+            type="email"
+            id="loginEmail"
+            required
+            placeholder="Enter your email"
+          />
+          <label for="loginPassword">Password:</label>
+          <input
+            type="password"
+            id="loginPassword"
+            required
+            placeholder="Enter your password"
+          />
+          <button class="submit-btn" type="submit">Login</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Sign Up Modal -->
+    <div
+      id="signupModal"
+      class="modal"
+      aria-hidden="true"
+      role="dialog"
+      aria-labelledby="signupTitle"
+    >
+      <div class="modal-content">
+        <button
+          class="close-btn"
+          aria-label="Close sign up form"
+          onclick="closeModal('signup')"
+        >
+          &times;
+        </button>
+        <h2 id="signupTitle">Sign Up</h2>
+        <form id="signupForm">
+          <label for="signupName">Name:</label>
+          <input
+            type="text"
+            id="signupName"
+            required
+            placeholder="Enter your full name"
+          />
+          <label for="signupEmail">Email:</label>
+          <input
+            type="email"
+            id="signupEmail"
+            required
+            placeholder="Enter your email"
+          />
+          <label for="signupPassword">Password:</label>
+          <input
+            type="password"
+            id="signupPassword"
+            required
+            placeholder="Create a password"
+          />
+          <button class="submit-btn" type="submit">Sign Up</button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      // Car data
+      const cars = [
+        // Popular Cars
+        {
+          name: "Tata Altroz",
+          price: "₹6.89 Lakh",
+          fuel: "Petrol",
+          category: "Popular",
+          image: "/images/altroz.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Toyota Urban Cruiser Hyryder",
+          price: "₹11.34 Lakh",
+          fuel: "Petrol",
+          category: "Popular",
+          image: "/images/hyryder.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Mahindra XUV700",
+          price: "₹14.49 Lakh",
+          fuel: "Diesel",
+          category: "Popular",
+          image: "/images/xuv700.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Hyundai Creta",
+          price: "₹11.11 Lakh",
+          fuel: "Petrol",
+          category: "Popular",
+          image: "/images/creta.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Tata Nexon",
+          price: "₹8.00 Lakh",
+          fuel: "Diesel",
+          category: "Popular",
+          image: "/images/nexon.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Maruti Suzuki Brezza",
+          price: "₹8.69 Lakh",
+          fuel: "Petrol",
+          category: "Popular",
+          image: "/images/brezza.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Mahindra Scorpio N",
+          price: "₹13.99 Lakh",
+          fuel: "Diesel",
+          category: "Popular",
+          image: "/images/scorpio.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Maruti Suzuki Fronx",
+          price: "₹7.54 Lakh",
+          fuel: "Petrol",
+          category: "Popular",
+          image: "/images/fronx.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Kia Carens Clavis",
+          price: "₹11.50 Lakh",
+          fuel: "Petrol",
+          category: "Popular",
+          image: "/images/carens.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Skoda Kylaq",
+          price: "₹8.25 Lakh",
+          fuel: "Petrol",
+          category: "Popular",
+          image: "/images/kylaq.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Mahindra XUV 3XO",
+          price: "₹7.99 Lakh",
+          fuel: "Petrol",
+          category: "Popular",
+          image: "/images/xuv3xo.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Maruti Suzuki Swift",
+          price: "₹6.49 Lakh",
+          fuel: "Petrol",
+          category: "Popular",
+          image: "/images/swift.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Tata Punch",
+          price: "₹6.20 Lakh",
+          fuel: "Petrol",
+          category: "Popular",
+          image: "/images/punch.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Mahindra BE 6",
+          price: "₹18.90 Lakh",
+          fuel: "Electric",
+          category: "Popular",
+          image: "/images/be6.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Tata Curvv",
+          price: "₹10.00 Lakh",
+          fuel: "Petrol",
+          category: "Popular",
+          image: "/images/curvv.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Mahindra Thar Roxx",
+          price: "₹12.99 Lakh",
+          fuel: "Diesel",
+          category: "Popular",
+          image: "/images/thar_roxx.jpg",
+          transmission: "Manual",
+        },
+
+        // SUVs & Crossovers
+        {
+          name: "Tata Harrier EV",
+          price: "₹24.00 Lakh",
+          fuel: "Electric",
+          category: "SUV",
+          image: "/images/harrier_ev.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Mahindra XUV700",
+          price: "₹14.49 Lakh",
+          fuel: "Diesel",
+          category: "SUV",
+          image: "/images/xuv700.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Hyundai Creta",
+          price: "₹11.11 Lakh",
+          fuel: "Petrol",
+          category: "SUV",
+          image: "/images/creta.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Maruti Suzuki Brezza",
+          price: "₹8.69 Lakh",
+          fuel: "Petrol",
+          category: "SUV",
+          image: "/images/brezza.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Mahindra Scorpio N",
+          price: "₹13.99 Lakh",
+          fuel: "Diesel",
+          category: "SUV",
+          image: "/images/scorpio.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Mahindra Thar Roxx",
+          price: "₹12.99 Lakh",
+          fuel: "Diesel",
+          category: "SUV",
+          image: "/images/thar_roxx.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Mahindra BE 6",
+          price: "₹18.90 Lakh",
+          fuel: "Electric",
+          category: "SUV",
+          image: "/images/be6.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Tata Curvv",
+          price: "₹10.00 Lakh",
+          fuel: "Petrol",
+          category: "SUV",
+          image: "/images/curvv.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Skoda Kylaq",
+          price: "₹8.25 Lakh",
+          fuel: "Petrol",
+          category: "SUV",
+          image: "/images/kylaq.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Mahindra XUV 3XO",
+          price: "₹7.99 Lakh",
+          fuel: "Petrol",
+          category: "SUV",
+          image: "/images/xuv3xo.jpg",
+          transmission: "Manual",
+        },
+
+        // Sedans
+        {
+          name: "Maruti Suzuki Dzire",
+          price: "₹6.84 Lakh",
+          fuel: "Petrol",
+          category: "Sedan",
+          image: "/images/dzire.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Volkswagen Virtus",
+          price: "₹11.56 Lakh",
+          fuel: "Petrol",
+          category: "Sedan",
+          image: "/images/virtus.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Honda City",
+          price: "₹12.42 Lakh",
+          fuel: "Petrol",
+          category: "Sedan",
+          image: "/images/city.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Honda Elevate",
+          price: "₹11.95 Lakh",
+          fuel: "Petrol",
+          category: "Sedan",
+          image: "/images/elevate.jpg",
+          transmission: "Automatic",
+        },
+
+        // MPVs & MUVs
+        {
+          name: "Toyota Innova Crysta",
+          price: "₹19.99 Lakh",
+          fuel: "Diesel",
+          category: "MPV",
+          image: "/images/innova.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Toyota Innova Hycross",
+          price: "₹19.94 Lakh",
+          fuel: "Petrol",
+          category: "MPV",
+          image: "/images/hycross.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Maruti Suzuki Ertiga",
+          price: "₹8.97 Lakh",
+          fuel: "Petrol",
+          category: "MPV",
+          image: "/images/ertiga.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Maruti Suzuki XL6",
+          price: "₹11.83 Lakh",
+          fuel: "Petrol",
+          category: "MPV",
+          image: "/images/xl6.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Kia Carens Clavis",
+          price: "₹11.50 Lakh",
+          fuel: "Petrol",
+          category: "MPV",
+          image: "/images/carens.jpg",
+          transmission: "Manual",
+        },
+
+        // Electric Vehicles (EVs)
+        {
+          name: "Mahindra BE 6",
+          price: "₹18.90 Lakh",
+          fuel: "Electric",
+          category: "EV",
+          image: "/images/be6.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Mahindra XEV 9e",
+          price: "₹21.90 Lakh",
+          fuel: "Electric",
+          category: "EV",
+          image: "/images/xev9e.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Tata Nexon EV",
+          price: "₹12.49 Lakh",
+          fuel: "Electric",
+          category: "EV",
+          image: "/images/nexon_ev.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Tata Punch EV",
+          price: "₹9.99 Lakh",
+          fuel: "Electric",
+          category: "EV",
+          image: "/images/punch_ev.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Tata Tiago EV",
+          price: "₹7.99 Lakh",
+          fuel: "Electric",
+          category: "EV",
+          image: "/images/tiago_ev.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Tata Altroz EV",
+          price: "Expected mid-2025",
+          fuel: "Electric",
+          category: "EV",
+          image: "/images/altroz_ev.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Tata Curvv EV",
+          price: "Expected mid-2025",
+          fuel: "Electric",
+          category: "EV",
+          image: "/images/curvv_ev.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Tata Safari EV",
+          price: "Expected Aug 2025",
+          fuel: "Electric",
+          category: "EV",
+          image: "/images/safari_ev.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Tata Sierra EV",
+          price: "Expected Sep 2025",
+          fuel: "Electric",
+          category: "EV",
+          image: "/images/sierra_ev.jpg",
+          transmission: "Manual",
+        },
+
+        // Luxury Cars
+        {
+          name: "BMW 5 Series",
+          price: "₹74.40 Lakh",
+          fuel: "Petrol",
+          category: "Luxury",
+          image: "/images/bmw5series.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Toyota Fortuner Legender",
+          price: "₹44.11 Lakh",
+          fuel: "Diesel",
+          category: "Luxury",
+          image: "/images/fortuner_legender.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "BMW X5",
+          price: "₹97.80 Lakh",
+          fuel: "Petrol",
+          category: "Luxury",
+          image: "/images/bmwx5.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Toyota Camry",
+          price: "₹48.50 Lakh",
+          fuel: "Petrol",
+          category: "Luxury",
+          image: "/images/camry.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Volkswagen Golf GTI",
+          price: "₹53.00 Lakh",
+          fuel: "Petrol",
+          category: "Luxury",
+          image: "/images/golf.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Mercedes-Benz A-Class Limousine",
+          price: "₹46.05 Lakh",
+          fuel: "Petrol",
+          category: "Luxury",
+          image: "/images/mercedes_a.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "BMW X1",
+          price: "₹50.80 Lakh",
+          fuel: "Petrol",
+          category: "Luxury",
+          image: "/images/bmwx1.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "BMW 3 Series LWB",
+          price: "₹62.00 Lakh",
+          fuel: "Petrol",
+          category: "Luxury",
+          image: "/images/bmw3series.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Skoda Kodiaq",
+          price: "₹46.89 Lakh",
+          fuel: "Petrol",
+          category: "Luxury",
+          image: "/images/kodiaq.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Jeep Wrangler",
+          price: "₹67.65 Lakh",
+          fuel: "Petrol",
+          category: "Luxury",
+          image: "/images/wrangler.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Toyota Vellfire",
+          price: "₹1.22 Crore",
+          fuel: "Petrol",
+          category: "Luxury",
+          image: "/images/vellfire.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "BMW M340i",
+          price: "₹75.90 Lakh",
+          fuel: "Petrol",
+          category: "Luxury",
+          image: "/images/bmwm340i.jpg",
+          transmission: "Automatic",
+        },
+
+        {
+          name: "Aventador",
+          brand: "Lamborghini",
+          image: "https://source.unsplash.com/250x150/?lamborghini",
+        },
+        {
+          name: "Urus",
+          brand: "Lamborghini",
+          image: "https://source.unsplash.com/250x150/?urus",
+        },
+        {
+          name: "Chiron",
+          brand: "Bugatti",
+          image: "https://source.unsplash.com/250x150/?bugatti",
+        },
+        {
+          name: "Veyron",
+          brand: "Bugatti",
+          image: "https://source.unsplash.com/250x150/?veyron",
+        },
+        {
+          name: "G-Class",
+          brand: "Mercedes",
+          image: "https://source.unsplash.com/250x150/?mercedes",
+        },
+        {
+          name: "Cullinan",
+          brand: "Rolls Royce",
+          image: "https://source.unsplash.com/250x150/?rolls-royce",
+        },
+        {
+          name: "Ghost",
+          brand: "Rolls Royce",
+          image: "https://source.unsplash.com/250x150/?ghost-car",
+        },
+        {
+          name: "Model S",
+          brand: "Tesla",
+          image: "https://source.unsplash.com/250x150/?tesla",
+        },
+        {
+          name: "Phantom",
+          brand: "Rolls Royce",
+          image: "https://source.unsplash.com/250x150/?phantom",
+        },
+        // Popular Cars
+        {
+          name: "Tata Altroz",
+          price: "₹6.89 Lakh",
+          fuel: "Petrol",
+          category: "Popular",
+          image: "/images/altroz.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Toyota Urban Cruiser Hyryder",
+          price: "₹11.34 Lakh",
+          fuel: "Petrol",
+          category: "Popular",
+          image: "/images/hyryder.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Mahindra XUV700",
+          price: "₹14.49 Lakh",
+          fuel: "Diesel",
+          category: "Popular",
+          image: "/images/xuv700.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Hyundai Creta",
+          price: "₹11.11 Lakh",
+          fuel: "Petrol",
+          category: "Popular",
+          image: "/images/creta.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Tata Nexon",
+          price: "₹8.00 Lakh",
+          fuel: "Diesel",
+          category: "Popular",
+          image: "/images/nexon.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Maruti Suzuki Brezza",
+          price: "₹8.69 Lakh",
+          fuel: "Petrol",
+          category: "Popular",
+          image: "/images/brezza.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Mahindra Scorpio N",
+          price: "₹13.99 Lakh",
+          fuel: "Diesel",
+          category: "Popular",
+          image: "/images/scorpio.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Maruti Suzuki Fronx",
+          price: "₹7.54 Lakh",
+          fuel: "Petrol",
+          category: "Popular",
+          image: "/images/fronx.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Kia Carens Clavis",
+          price: "₹11.50 Lakh",
+          fuel: "Petrol",
+          category: "Popular",
+          image: "/images/carens.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Skoda Kylaq",
+          price: "₹8.25 Lakh",
+          fuel: "Petrol",
+          category: "Popular",
+          image: "/images/kylaq.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Mahindra XUV 3XO",
+          price: "₹7.99 Lakh",
+          fuel: "Petrol",
+          category: "Popular",
+          image: "/images/xuv3xo.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Maruti Suzuki Swift",
+          price: "₹6.49 Lakh",
+          fuel: "Petrol",
+          category: "Popular",
+          image: "/images/swift.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Tata Punch",
+          price: "₹6.20 Lakh",
+          fuel: "Petrol",
+          category: "Popular",
+          image: "/images/punch.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Mahindra BE 6",
+          price: "₹18.90 Lakh",
+          fuel: "Electric",
+          category: "Popular",
+          image: "/images/be6.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Tata Curvv",
+          price: "₹10.00 Lakh",
+          fuel: "Petrol",
+          category: "Popular",
+          image: "/images/curvv.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Mahindra Thar Roxx",
+          price: "₹12.99 Lakh",
+          fuel: "Diesel",
+          category: "Popular",
+          image: "/images/thar_roxx.jpg",
+          transmission: "Manual",
+        },
+
+        // SUVs & Crossovers
+        {
+          name: "Tata Harrier EV",
+          price: "₹24.00 Lakh",
+          fuel: "Electric",
+          category: "SUV",
+          image: "/images/harrier_ev.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Mahindra XUV700",
+          price: "₹14.49 Lakh",
+          fuel: "Diesel",
+          category: "SUV",
+          image: "/images/xuv700.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Hyundai Creta",
+          price: "₹11.11 Lakh",
+          fuel: "Petrol",
+          category: "SUV",
+          image: "/images/creta.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Maruti Suzuki Brezza",
+          price: "₹8.69 Lakh",
+          fuel: "Petrol",
+          category: "SUV",
+          image: "/images/brezza.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Mahindra Scorpio N",
+          price: "₹13.99 Lakh",
+          fuel: "Diesel",
+          category: "SUV",
+          image: "/images/scorpio.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Mahindra Thar Roxx",
+          price: "₹12.99 Lakh",
+          fuel: "Diesel",
+          category: "SUV",
+          image: "/images/thar_roxx.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Mahindra BE 6",
+          price: "₹18.90 Lakh",
+          fuel: "Electric",
+          category: "SUV",
+          image: "/images/be6.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Tata Curvv",
+          price: "₹10.00 Lakh",
+          fuel: "Petrol",
+          category: "SUV",
+          image: "/images/curvv.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Skoda Kylaq",
+          price: "₹8.25 Lakh",
+          fuel: "Petrol",
+          category: "SUV",
+          image: "/images/kylaq.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Mahindra XUV 3XO",
+          price: "₹7.99 Lakh",
+          fuel: "Petrol",
+          category: "SUV",
+          image: "/images/xuv3xo.jpg",
+          transmission: "Manual",
+        },
+
+        // Sedans
+        {
+          name: "Maruti Suzuki Dzire",
+          price: "₹6.84 Lakh",
+          fuel: "Petrol",
+          category: "Sedan",
+          image: "/images/dzire.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Volkswagen Virtus",
+          price: "₹11.56 Lakh",
+          fuel: "Petrol",
+          category: "Sedan",
+          image: "/images/virtus.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Honda City",
+          price: "₹12.42 Lakh",
+          fuel: "Petrol",
+          category: "Sedan",
+          image: "/images/city.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Honda Elevate",
+          price: "₹11.95 Lakh",
+          fuel: "Petrol",
+          category: "Sedan",
+          image: "/images/elevate.jpg",
+          transmission: "Automatic",
+        },
+
+        // MPVs & MUVs
+        {
+          name: "Toyota Innova Crysta",
+          price: "₹19.99 Lakh",
+          fuel: "Diesel",
+          category: "MPV",
+          image: "/images/innova.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Toyota Innova Hycross",
+          price: "₹19.94 Lakh",
+          fuel: "Petrol",
+          category: "MPV",
+          image: "/images/hycross.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Maruti Suzuki Ertiga",
+          price: "₹8.97 Lakh",
+          fuel: "Petrol",
+          category: "MPV",
+          image: "/images/ertiga.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Maruti Suzuki XL6",
+          price: "₹11.83 Lakh",
+          fuel: "Petrol",
+          category: "MPV",
+          image: "/images/xl6.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Kia Carens Clavis",
+          price: "₹11.50 Lakh",
+          fuel: "Petrol",
+          category: "MPV",
+          image: "/images/carens.jpg",
+          transmission: "Manual",
+        },
+
+        // Electric Vehicles (EVs)
+        {
+          name: "Mahindra BE 6",
+          price: "₹18.90 Lakh",
+          fuel: "Electric",
+          category: "EV",
+          image: "/images/be6.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Mahindra XEV 9e",
+          price: "₹21.90 Lakh",
+          fuel: "Electric",
+          category: "EV",
+          image: "/images/xev9e.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Tata Nexon EV",
+          price: "₹12.49 Lakh",
+          fuel: "Electric",
+          category: "EV",
+          image: "/images/nexon_ev.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Tata Punch EV",
+          price: "₹9.99 Lakh",
+          fuel: "Electric",
+          category: "EV",
+          image: "/images/punch_ev.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Tata Tiago EV",
+          price: "₹7.99 Lakh",
+          fuel: "Electric",
+          category: "EV",
+          image: "/images/tiago_ev.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Tata Altroz EV",
+          price: "Expected mid-2025",
+          fuel: "Electric",
+          category: "EV",
+          image: "/images/altroz_ev.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Tata Curvv EV",
+          price: "Expected mid-2025",
+          fuel: "Electric",
+          category: "EV",
+          image: "/images/curvv_ev.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Tata Safari EV",
+          price: "Expected Aug 2025",
+          fuel: "Electric",
+          category: "EV",
+          image: "/images/safari_ev.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Tata Sierra EV",
+          price: "Expected Sep 2025",
+          fuel: "Electric",
+          category: "EV",
+          image: "/images/sierra_ev.jpg",
+          transmission: "Manual",
+        },
+
+        // Luxury Cars
+        {
+          name: "BMW 5 Series",
+          price: "₹74.40 Lakh",
+          fuel: "Petrol",
+          category: "Luxury",
+          image: "/images/bmw5series.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Toyota Fortuner Legender",
+          price: "₹44.11 Lakh",
+          fuel: "Diesel",
+          category: "Luxury",
+          image: "/images/fortuner_legender.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "BMW X5",
+          price: "₹97.80 Lakh",
+          fuel: "Petrol",
+          category: "Luxury",
+          image: "/images/bmwx5.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Toyota Camry",
+          price: "₹48.50 Lakh",
+          fuel: "Petrol",
+          category: "Luxury",
+          image: "/images/camry.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Volkswagen Golf GTI",
+          price: "₹53.00 Lakh",
+          fuel: "Petrol",
+          category: "Luxury",
+          image: "/images/golf.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Mercedes-Benz A-Class Limousine",
+          price: "₹46.05 Lakh",
+          fuel: "Petrol",
+          category: "Luxury",
+          image: "/images/mercedes_a.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "BMW X1",
+          price: "₹50.80 Lakh",
+          fuel: "Petrol",
+          category: "Luxury",
+          image: "/images/bmwx1.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "BMW 3 Series LWB",
+          price: "₹62.00 Lakh",
+          fuel: "Petrol",
+          category: "Luxury",
+          image: "/images/bmw3series.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Skoda Kodiaq",
+          price: "₹46.89 Lakh",
+          fuel: "Petrol",
+          category: "Luxury",
+          image: "/images/kodiaq.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "Jeep Wrangler",
+          price: "₹67.65 Lakh",
+          fuel: "Petrol",
+          category: "Luxury",
+          image: "/images/wrangler.jpg",
+          transmission: "Manual",
+        },
+        {
+          name: "Toyota Vellfire",
+          price: "₹1.22 Crore",
+          fuel: "Petrol",
+          category: "Luxury",
+          image: "/images/vellfire.jpg",
+          transmission: "Automatic",
+        },
+        {
+          name: "BMW M340i",
+          price: "₹75.90 Lakh",
+          fuel: "Petrol",
+          category: "Luxury",
+          image: "/images/bmwm340i.jpg",
+          transmission: "Automatic",
+        },
+      ];
+
+      // DOM elements
+      const carContainer = document.getElementById("carContainer");
+      const categoryFilter = document.getElementById("categoryFilter");
+      const searchInput = document.getElementById("searchInput");
+      const carSection = document.getElementById("carSection");
+      const authButtons = document.getElementById("authButtons");
+
+      // Modal functions
+      function openModal(type) {
+        const modal = document.getElementById(type + "Modal");
+        modal.style.display = "flex";
+        modal.setAttribute("aria-hidden", "false");
+        // Focus on first input
+        const firstInput = modal.querySelector("input");
+        if (firstInput) firstInput.focus();
+      }
+      function closeModal(type) {
+        const modal = document.getElementById(type + "Modal");
+        modal.style.display = "none";
+        modal.setAttribute("aria-hidden", "true");
+      }
+      // Close modals on clicking outside modal content
+      window.onclick = function (event) {
+        ["loginModal", "signupModal"].forEach((id) => {
+          const modal = document.getElementById(id);
+          if (event.target === modal) {
+            modal.style.display = "none";
+            modal.setAttribute("aria-hidden", "true");
+          }
+        });
+      };
+
+      // Render car cards
+      function renderCars(carsToRender) {
+        carContainer.innerHTML = "";
+        if (carsToRender.length === 0) {
+          carContainer.innerHTML =
+            "<p style='grid-column: 1/-1; text-align: center; color: #777;'>No cars match your search/filter.</p>";
+          return;
+        }
+        carsToRender.forEach((car) => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+        <img src="${car.image}" alt="${car.name}" loading="lazy" />
+        <div class="card-body">
+          <h3>${car.name}</h3>
+          <p><strong>Category:</strong> ${car.category}</p>
+          <p><strong>Year:</strong> ${car.year}</p>
+          <p><strong>Price:</strong> ${car.price}</p>
+        </div>
+      `;
+          carContainer.appendChild(card);
+        });
+      }
+
+      // Filter cars by category and search input
+      function filterCars() {
+        const category = categoryFilter.value;
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        let filtered = cars;
+
+        if (category !== "All") {
+          filtered = filtered.filter((car) => car.category === category);
+        }
+        if (searchTerm) {
+          filtered = filtered.filter((car) =>
+            car.name.toLowerCase().includes(searchTerm)
+          );
+        }
+        renderCars(filtered);
+      }
+
+      // Simple user auth simulation (with localStorage)
+      function getUsers() {
+        return JSON.parse(localStorage.getItem("users") || "[]");
+      }
+      function setUsers(users) {
+        localStorage.setItem("users", JSON.stringify(users));
+      }
+      function getLoggedInUser() {
+        return localStorage.getItem("loggedInUser");
+      }
+      function setLoggedInUser(email) {
+        localStorage.setItem("loggedInUser", email);
+      }
+      function logoutUser() {
+        localStorage.removeItem("loggedInUser");
+        updateUIForAuth();
+      }
+
+      // Update UI depending on login state
+      function updateUIForAuth() {
+        const userEmail = getLoggedInUser();
+        if (userEmail) {
+          // Hide login/signup buttons
+          authButtons.innerHTML = `
+        <span style="color:#fff; margin-right:1rem;">Logged in as: ${userEmail}</span>
+        <button onclick="logoutUser()" style="background-color:#b33939;">Logout</button>
+      `;
+          carSection.style.display = "flex";
+          filterCars();
+        } else {
+          authButtons.innerHTML = `
+        <button onclick="openModal('login')">Login</button>
+        <button onclick="openModal('signup')">Sign Up</button>
+      `;
+          carSection.style.display = "none";
+          carContainer.innerHTML = "";
+        }
+      }
+
+      // Handle Sign Up form submit
+      document.getElementById("signupForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const name = document.getElementById("signupName").value.trim();
+        const email = document
+          .getElementById("signupEmail")
+          .value.trim()
+          .toLowerCase();
+        const password = document.getElementById("signupPassword").value;
+
+        if (!name || !email || !password) {
+          alert("Please fill all fields");
+          return;
+        }
+
+        let users = getUsers();
+        if (users.some((u) => u.email === email)) {
+          alert("Email is already registered.");
+          return;
+        }
+
+        users.push({ name, email, password });
+        setUsers(users);
+        alert("Sign up successful! Please login.");
+        closeModal("signup");
+      });
+
+      // Handle Login form submit
+      document.getElementById("loginForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const email = document
+          .getElementById("loginEmail")
+          .value.trim()
+          .toLowerCase();
+        const password = document.getElementById("loginPassword").value;
+
+        const users = getUsers();
+        const user = users.find(
+          (u) => u.email === email && u.password === password
+        );
+        if (!user) {
+          alert("Invalid email or password.");
+          return;
+        }
+        setLoggedInUser(email);
+        alert("Login successful!");
+        closeModal("login");
+        updateUIForAuth();
+      });
+
+      // Initialize UI on page load
+      updateUIForAuth();
+    </script>
+  </body>
+</html>
